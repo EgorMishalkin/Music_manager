@@ -1,4 +1,3 @@
-package laba2;
 import java.util.Date;
 
 class Concert extends Tour {

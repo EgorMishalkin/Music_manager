@@ -1,5 +1,3 @@
-package laba2;
-
 public class Musician {
     private String name;
     private String instrument;

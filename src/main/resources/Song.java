@@ -1,5 +1,3 @@
-package laba2;
-
 class Song extends Album {
     // Переменные
     private String title;

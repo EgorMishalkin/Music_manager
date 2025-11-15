@@ -1,5 +1,3 @@
-package laba2;
-
 import java.util.List;
 
 class Album {
