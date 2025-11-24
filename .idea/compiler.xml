@@ -10,9 +10,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="maven_support" />
         <module name="laba2" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="maven_support" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

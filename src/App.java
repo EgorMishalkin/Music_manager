@@ -39,6 +39,7 @@ public class App {
         frame.setVisible(true);
     }
 
+    // error window, appear on every mistake
     private void showError(String message) {
         JOptionPane.showMessageDialog(frame, message, "Ошибка", JOptionPane.ERROR_MESSAGE);
     }
@@ -54,19 +55,19 @@ public class App {
         topBar.add(title);
         panel.add(topBar, BorderLayout.NORTH);
 
+        // creates main menu
         JPanel grid = new JPanel(new GridLayout(2, 2, 15, 15));
         grid.setBackground(Styles.BACKGROUND_COLOR);
-        grid.setBorder(BorderFactory.createEmptyBorder(15,15,15,15));
-
+        grid.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         grid.add(createMenuCard("Группы", "🎵", e -> cardLayout.show(mainPanel, GROUPS)));
         grid.add(createMenuCard("Гастроли", "🎤", e -> JOptionPane.showMessageDialog(frame, "Окно гастролей")));
         grid.add(createMenuCard("Хит-парад", "⭐", e -> JOptionPane.showMessageDialog(frame, "Окно хит-парада")));
-        grid.add(createMenuCard("Отчет", "📑", e -> JOptionPane.showMessageDialog(frame, "Генерация отчета...")));
-
+        grid.add(createMenuCard("Отчет", "📑", e -> generateReport()));
         panel.add(grid, BorderLayout.CENTER);
         return panel;
     }
 
+    // window with groups list
     private JPanel createGroupsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Styles.BACKGROUND_COLOR);
@@ -96,10 +97,12 @@ public class App {
         return panel;
     }
 
+
+    // panel with xml reports and editing groups
     private JPanel createBottomPanel() {
-        JPanel panel = new JPanel(new GridLayout(1,4,10,10));
+        JPanel panel = new JPanel(new GridLayout(1, 4, 10, 10));
         panel.setBackground(Styles.BACKGROUND_COLOR);
-        panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         panel.add(createButton("Добавить группу", e -> addGroup()));
         panel.add(createButton("Загрузить из XML", e -> xmlLoad()));
@@ -108,6 +111,7 @@ public class App {
 
         return panel;
     }
+
 
     private JPanel createGroupInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -172,7 +176,8 @@ public class App {
             if (chooser.showSaveDialog(frame) != JFileChooser.APPROVE_OPTION) return;
 
             File file = chooser.getSelectedFile();
-            if (!file.getName().toLowerCase().endsWith(".xml")) file = new File(file.getParentFile(), file.getName() + ".xml");
+            if (!file.getName().toLowerCase().endsWith(".xml"))
+                file = new File(file.getParentFile(), file.getName() + ".xml");
 
             List<String> groups = new ArrayList<>();
             for (int i = 0; i < groupListModel.size(); i++) groups.add(groupListModel.get(i));
@@ -204,9 +209,18 @@ public class App {
     private File getDownloadsFolder() {
         String userHome = System.getProperty("user.home");
         File downloads = new File(userHome, "Downloads");
-        if (!downloads.exists()) downloads = new File(userHome); // fallback
+        if (!downloads.exists()) downloads = new File(userHome);
         return downloads;
     }
+
+    private void generateReport() {
+        List<String> groups = new ArrayList<>();
+        for (int i = 0; i < groupListModel.size(); i++)
+            groups.add(groupListModel.get(i));
+
+        PDFReport.generateReportDialog(frame, groups, getDownloadsFolder());
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(App::new);
