@@ -1,14 +1,18 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 public class Database {
+    private static final Logger log = Logger.getLogger(Database.class);
+
     private static final String URL = "jdbc:mysql://localhost:3306/music_manager?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String USER = "root";
     private static final String PASSWORD = "443081443081";
 
     public static List<String> getGroups() {
         List<String> groups = new ArrayList<>();
+        log.info("Начата загрузка списка групп из базы данных");
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -26,8 +30,9 @@ public class Database {
             rs.close();
             stmt.close();
             conn.close();
+            log.info("Список групп успешно загружен из базы данных");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Ошибка при загрузке групп из базы данных", e);
             groups.add("⚠ Ошибка загрузки групп!");
         }
 

@@ -6,8 +6,11 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 public class App {
+
+    private static final Logger log = Logger.getLogger(App.class);
 
     private JFrame frame;
     private JPanel mainPanel;
@@ -37,11 +40,13 @@ public class App {
 
         frame.add(mainPanel);
         frame.setVisible(true);
+
+        log.info("Приложение запущено");
     }
 
-    // error window, appear on every mistake
     private void showError(String message) {
         JOptionPane.showMessageDialog(frame, message, "Ошибка", JOptionPane.ERROR_MESSAGE);
+        log.warn("Ошибка: " + message);
     }
 
     private JPanel createMainMenu() {
@@ -55,19 +60,34 @@ public class App {
         topBar.add(title);
         panel.add(topBar, BorderLayout.NORTH);
 
-        // creates main menu
         JPanel grid = new JPanel(new GridLayout(2, 2, 15, 15));
         grid.setBackground(Styles.BACKGROUND_COLOR);
         grid.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        grid.add(createMenuCard("Группы", "🎵", e -> cardLayout.show(mainPanel, GROUPS)));
-        grid.add(createMenuCard("Гастроли", "🎤", e -> JOptionPane.showMessageDialog(frame, "Окно гастролей")));
-        grid.add(createMenuCard("Хит-парад", "⭐", e -> JOptionPane.showMessageDialog(frame, "Окно хит-парада")));
-        grid.add(createMenuCard("Отчет", "📑", e -> generateReport()));
+
+        grid.add(createMenuCard("Группы", "🎵", e -> {
+            log.info("Открыто окно списка групп");
+            cardLayout.show(mainPanel, GROUPS);
+        }));
+
+        grid.add(createMenuCard("Гастроли", "🎤", e -> {
+            log.info("Открыто окно Гастроли");
+            JOptionPane.showMessageDialog(frame, "Окно гастролей");
+        }));
+
+        grid.add(createMenuCard("Хит-парад", "⭐", e -> {
+            log.info("Открыто окно Хит-парада");
+            JOptionPane.showMessageDialog(frame, "Окно хит-парада");
+        }));
+
+        grid.add(createMenuCard("Отчет", "📑", e -> {
+            log.info("Начата генерация отчета");
+            generateReport();
+        }));
+
         panel.add(grid, BorderLayout.CENTER);
         return panel;
     }
 
-    // window with groups list
     private JPanel createGroupsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Styles.BACKGROUND_COLOR);
@@ -88,6 +108,7 @@ public class App {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && groupList.getSelectedValue() != null) {
                     groupInfoLabel.setText("Информация о группе: " + groupList.getSelectedValue());
+                    log.info("Просмотр информации о группе: " + groupList.getSelectedValue());
                     cardLayout.show(mainPanel, GROUP_INFO);
                 }
             }
@@ -97,8 +118,6 @@ public class App {
         return panel;
     }
 
-
-    // panel with xml reports and editing groups
     private JPanel createBottomPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 4, 10, 10));
         panel.setBackground(Styles.BACKGROUND_COLOR);
@@ -111,7 +130,6 @@ public class App {
 
         return panel;
     }
-
 
     private JPanel createGroupInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -163,7 +181,9 @@ public class App {
             String year = JOptionPane.showInputDialog(frame, "Введите год образования:");
             Validator.checkIsNumber(year, "Год образования");
 
+            log.debug("Попытка добавить новую группу: " + name + " (" + year + ")");
             groupListModel.addElement(name + " (" + year + ")");
+            log.info("Группа успешно добавлена: " + name + " (" + year + ")");
         } catch (BlankFieldError e) {
             showError(e.getMessage());
         }
@@ -183,8 +203,10 @@ public class App {
             for (int i = 0; i < groupListModel.size(); i++) groups.add(groupListModel.get(i));
 
             XMLManager.saveGroupsToXML(groups, file);
+            log.info("Сохранение списка групп в XML: " + file.getAbsolutePath());
             JOptionPane.showMessageDialog(frame, "Файл XML сохранён!");
         } catch (Exception e) {
+            log.error("Ошибка при сохранении XML", e);
             showError("Ошибка при сохранении: " + e.getMessage());
         }
     }
@@ -200,8 +222,10 @@ public class App {
             XMLManager.loadGroupsFromXML(file, groups);
 
             groups.forEach(groupListModel::addElement);
+            log.info("Загрузка списка групп из XML: " + file.getAbsolutePath());
             JOptionPane.showMessageDialog(frame, "Данные из XML добавлены!");
         } catch (Exception e) {
+            log.error("Ошибка при загрузке XML", e);
             showError("Ошибка при загрузке: " + e.getMessage());
         }
     }
@@ -220,7 +244,6 @@ public class App {
 
         PDFReport.generateReportDialog(frame, groups, getDownloadsFolder());
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(App::new);

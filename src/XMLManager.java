@@ -5,12 +5,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 public class XMLManager {
+    private static final Logger log = Logger.getLogger(XMLManager.class);
+
     public static void saveGroupsToXML(List<String> groups, File file) throws Exception {
+        log.info("Начата запись списка групп в XML: " + file.getAbsolutePath());
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-
         Document doc = builder.newDocument();
         Element root = doc.createElement("groups");
         doc.appendChild(root);
@@ -18,7 +22,6 @@ public class XMLManager {
         for (String group : groups) {
             Element groupElement = doc.createElement("group");
 
-            // Разделяем название и год, если есть
             String name = group;
             String year = "";
             if (group.contains("(") && group.endsWith(")")) {
@@ -45,10 +48,12 @@ public class XMLManager {
         StreamResult result = new StreamResult(file);
 
         transformer.transform(source, result);
+
+        log.info("Список групп успешно сохранен в XML: " + file.getAbsolutePath());
     }
 
-    // Загрузка списка групп из XML
     public static void loadGroupsFromXML(File file, List<String> groups) throws Exception {
+        log.info("Начата загрузка списка групп из XML: " + file.getAbsolutePath());
         groups.clear();
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -71,5 +76,7 @@ public class XMLManager {
                 }
             }
         }
+
+        log.info("Список групп успешно загружен из XML: " + file.getAbsolutePath());
     }
 }
